@@ -22,7 +22,7 @@ cvs co -r V03-04-07           RecoMET/METAlgorithms
 cvs co -r V01-02-02           DataFormats/TauReco
 cvs co -r V01-02-03           RecoTauTag/TauTagTools
 cvs co -r V00-04-01           CondFormats/EgammaObjects
-cvs co -r V02-03-01           JetMETCorrections/Algorithms
+#cvs co -r V02-03-01           JetMETCorrections/Algorithms
 
 
 cvs update -r  V03-02-01-01  RecoMET/METAlgorithms/src/CSCHaloAlgo.cc 
@@ -36,6 +36,8 @@ cvs update -r  V05-07-00     RecoJets/JetProducers/plugins/FastjetJetProducer.h
 cvs update -r  V05-08-07     RecoJets/JetProducers/plugins/VirtualJetProducer.*
 cvs update -r  V05-08-07     RecoJets/JetProducers/interface/PileUpSubtractor.h 
 cvs update -r  V05-08-07     RecoJets/JetProducers/src/PileUpSubtractor.cc 
+cvs co     -r  CMSSW_4_2_8_patch7 RecoMET/METAlgorithms/interface/SigInputObj.h
+cvs co     -r  CMSSW_4_2_8_patch7 RecoMET/METAlgorithms/interface/SigInputObj.cc
 
 rm RecoJets/JetProducers/plugins/FixedGridRhoProducer*
 rm JetMETCorrections/METPUSubtraction/plugins/NoPileUpPFMEtDataProducer.*
