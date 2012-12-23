@@ -21,7 +21,7 @@ namespace noPileUpMEtUtilities
   // auxiliary functions for jets
   reco::MVAMEtJetInfoCollection cleanJets(const reco::MVAMEtJetInfoCollection& jets,
 					  const std::vector<reco::Candidate::LorentzVector>& leptons,
-					  double dRoverlap, bool invert)
+					  double dRoverlap)
   {
     reco::MVAMEtJetInfoCollection retVal;
     for ( reco::MVAMEtJetInfoCollection::const_iterator jet = jets.begin();
@@ -29,12 +29,9 @@ namespace noPileUpMEtUtilities
       bool isOverlap = false;
       for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
 	    lepton != leptons.end(); ++lepton ) {
-	if ( deltaR(jet->p4_, *lepton) < dRoverlap ) {
-	  isOverlap = true;
-	  break;
-	}
+	if ( deltaR(jet->p4_, *lepton) < dRoverlap ) isOverlap = true;
       }
-      if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(*jet);
+      if ( !isOverlap ) retVal.push_back(*jet);
     }
     return retVal;
   }

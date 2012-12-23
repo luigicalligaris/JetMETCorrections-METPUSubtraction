@@ -21,7 +21,7 @@ namespace noPileUpMEtUtilities
   // auxiliary functions for jets
   reco::MVAMEtJetInfoCollection cleanJets(const reco::MVAMEtJetInfoCollection&, 
 					  const std::vector<reco::Candidate::LorentzVector>&, 
-					  double, bool);
+					  double);
   reco::MVAMEtJetInfoCollection selectJets(const reco::MVAMEtJetInfoCollection&,
 					   double, double, int);
   CommonMETData computeJetSum(const reco::MVAMEtJetInfoCollection&);
