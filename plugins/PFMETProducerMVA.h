@@ -8,16 +8,18 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PFMETProducerMVA.h,v 1.2 2012/10/01 14:05:26 pharris Exp $
+ * $Id: PFMETProducerMVA.h,v 1.4 2013/04/13 08:42:29 veelken Exp $
  *
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -69,11 +71,12 @@ namespace reco
     edm::InputTag srcVertices_;
     typedef std::vector<edm::InputTag> vInputTag;
     vInputTag srcLeptons_;
+    int minNumLeptons_; // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
     edm::InputTag srcRho_;
 
-    std::string  correctorLabel_;
-    bool         isOld42_ ;
-    bool         useType1_;
+    std::string correctorLabel_;
+    bool isOld42_ ;
+    bool useType1_;
     
     double globalThreshold_;
 
@@ -82,6 +85,7 @@ namespace reco
     METAlgo metAlgo_;
     PFSpecificAlgo pfMEtSpecificAlgo_;
     PFMETAlgorithmMVA mvaMEtAlgo_;
+    bool mvaMEtAlgo_isInitialized_;
     PileupJetIdAlgo mvaJetIdAlgo_;
 
     int verbosity_;

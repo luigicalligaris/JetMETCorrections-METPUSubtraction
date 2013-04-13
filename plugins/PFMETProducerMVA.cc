@@ -26,6 +26,8 @@
 
 using namespace reco;
 
+typedef edm::View<reco::Candidate> CandidateView;
+
 namespace
 {
   template <typename T>
@@ -68,13 +70,16 @@ namespace
 }
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
-  : mvaMEtAlgo_(cfg),mvaJetIdAlgo_(cfg)
+  : mvaMEtAlgo_(cfg),
+    mvaMEtAlgo_isInitialized_(false),
+    mvaJetIdAlgo_(cfg)   
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
   srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
   srcPFCandidates_ = cfg.getParameter<edm::InputTag>("srcPFCandidates");
   srcVertices_     = cfg.getParameter<edm::InputTag>("srcVertices");
   srcLeptons_      = cfg.getParameter<vInputTag>("srcLeptons");
+  minNumLeptons_   = cfg.getParameter<int>("minNumLeptons");
   srcRho_          = cfg.getParameter<edm::InputTag>("srcRho");
 
   globalThreshold_ = cfg.getParameter<double>("globalThreshold");
@@ -104,6 +109,29 @@ PFMETProducerMVA::~PFMETProducerMVA(){}
 
 void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es) 
 { 
+  // CV: check if the event is to be skipped
+  if ( minNumLeptons_ > 0 ) {
+    int numLeptons = 0;
+    for ( vInputTag::const_iterator srcLeptons_i = srcLeptons_.begin();
+	  srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
+      edm::Handle<CandidateView> leptons;
+      evt.getByLabel(*srcLeptons_i, leptons);
+      numLeptons += leptons->size();
+    }
+    if ( !(numLeptons >= minNumLeptons_) ) {
+      if ( verbosity_ ) {
+	std::cout << "<PFMETProducerMVA::produce>:" << std::endl;
+	std::cout << "Run: " << evt.id().run() << ", LS: " << evt.luminosityBlock()  << ", Event: " << evt.id().event() << std::endl;
+	std::cout << " numLeptons = " << numLeptons << ", minNumLeptons = " << minNumLeptons_ << " --> skipping !!" << std::endl;
+      }
+      reco::PFMET pfMEt;
+      std::auto_ptr<reco::PFMETCollection> pfMEtCollection(new reco::PFMETCollection());
+      pfMEtCollection->push_back(pfMEt);
+      evt.put(pfMEtCollection);
+      return;
+    }
+  }
+
   // get jets (corrected and uncorrected)
   edm::Handle<reco::PFJetCollection> corrJets;
   evt.getByLabel(srcCorrJets_, corrJets);
@@ -112,13 +140,12 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByLabel(srcUncorrJets_, uncorrJets);
 
   const JetCorrector* corrector = 0;
-  if(useType1_) corrector = JetCorrector::getJetCorrector (correctorLabel_, es);
+  if( useType1_ ) corrector = JetCorrector::getJetCorrector(correctorLabel_, es);
 
   // get PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   evt.getByLabel(srcPFCandidates_, pfCandidates);
 
-  typedef edm::View<reco::Candidate> CandidateView;
   edm::Handle<CandidateView> pfCandidates_view;
   evt.getByLabel(srcPFCandidates_, pfCandidates_view);
 
@@ -178,6 +205,14 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   //edm::Handle<double> rho;
   //evt.getByLabel(srcRho_, rho);
 
+  // initialize MVA MET algorithm
+  // (this will load the BDTs, stored as GBRForrest objects;
+  //  either in input ROOT files or in SQL-lite files/the Conditions Database) 
+  if ( !mvaMEtAlgo_isInitialized_ ) {
+    mvaMEtAlgo_.initialize(es);
+    mvaMEtAlgo_isInitialized_ = true;
+  }
+
   // reconstruct "standard" particle-flow missing Et
   CommonMETData pfMEt_data;
   metAlgo_.run(pfCandidates_view, &pfMEt_data, globalThreshold_);
@@ -197,9 +232,10 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   pfMEt.setSignificanceMatrix(mvaMEtAlgo_.getMEtCov());
   if ( verbosity_ ) {
     std::cout << "<PFMETProducerMVA::produce>:" << std::endl;
+    std::cout << "Run: " << evt.id().run() << ", LS: " << evt.luminosityBlock()  << ", Event: " << evt.id().event() << std::endl;
     std::cout << " PFMET: Pt = " << pfMEtP4_original.pt() << ", phi = " << pfMEtP4_original.phi() << " "
 	      << "(Px = " << pfMEtP4_original.px() << ", Py = " << pfMEtP4_original.py() << ")" << std::endl;
-    std::cout << " MVA MET: Pt = " << pfMEt.pt() << " phi = " << pfMEt.phi() << " " << evt.luminosityBlock() << " " << evt.id().event() << " (Px = " << pfMEt.px() << ", Py = " << pfMEt.py() << ")" << std::endl;
+    std::cout << " MVA MET: Pt = " << pfMEt.pt() << " phi = " << pfMEt.phi() << " (Px = " << pfMEt.px() << ", Py = " << pfMEt.py() << ")" << std::endl;
     std::cout << " Cov:" << std::endl;
     mvaMEtAlgo_.getMEtCov().Print();
     mvaMEtAlgo_.print(std::cout);
