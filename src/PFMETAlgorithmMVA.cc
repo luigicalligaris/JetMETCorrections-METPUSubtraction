@@ -63,7 +63,12 @@ PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg)
   
   loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   
+<<<<<<< PFMETAlgorithmMVA.cc
+  //is42_ = ( inputFileNameU.fullPath().find("42") != std::string::npos ) ?
+  //  true : false;
+=======
   is42_ = cfg.getParameter<bool>("is42");
+>>>>>>> 1.6
   
   mvaInputU_     = new Float_t[25];
   mvaInputDPhi_  = new Float_t[23];
@@ -139,8 +144,13 @@ void PFMETAlgorithmMVA::setInput(const std::vector<mvaMEtUtilities::leptonInfo>&
   chargedSumLeptonPy_ = chargedSumLeptons.mey;
 
   double ptThreshold = -1000.;
+<<<<<<< PFMETAlgorithmMVA.cc
+  if(isOld42_) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
+  std::vector<mvaMEtUtilities::JetInfo>          jets_cleaned         = utils_.cleanJets(jets, leptons, ptThreshold, 0.5);
+=======
   if ( is42_ ) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
   std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons, ptThreshold, 0.5);
+>>>>>>> 1.6
   CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil   (sumLeptons       , pfCandidates,               dZcut_);
   CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(chargedSumLeptons, pfCandidates,               dZcut_);
   CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil (chargedSumLeptons, pfCandidates, jets_cleaned, dZcut_);

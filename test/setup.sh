@@ -13,6 +13,9 @@ cp  -d pharrisTmp/*Dec2012*.root           JetMETCorrections/METPUSubtraction/da
 rm -rf pharrisTmp
 
 cvs co -r $tag RecoJets/JetProducers
+cvs up -r HEAD RecoJets/JetProducers/python/PileupJetIDCutParams_cfi.py                     
+cvs up -r HEAD RecoJets/JetProducers/python/PileupJetIDParams_cfi.py                     
+cvs up -r HEAD RecoJets/JetProducers/python/PileupJetID_cfi.py                     
 #cvs up -r CMSSW_5_3_3 RecoJets/JetProducers/src/JetSpecific.cc
 
 cvs co -r b5_3_X_cvMEtCorr_2013Feb22            DataFormats/METReco
