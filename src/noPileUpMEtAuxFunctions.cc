@@ -17,7 +17,7 @@ int isVertexAssociated(const reco::PFCandidate& pfCandidate,
     vtxAssociationType = 1;
     for ( PFCandidateToVertexAssociationMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
           pfCandToVertexAssociation != pfCandToVertexAssociations.end(); ++pfCandToVertexAssociation ) {
-      typedef std::vector<std::pair<reco::PFCandidateRef, float> > PFCandidateQualityPairVector;
+      typedef std::vector<std::pair<reco::PFCandidateRef, int> > PFCandidateQualityPairVector;
       const PFCandidateQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
       for ( PFCandidateQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
             pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
@@ -44,7 +44,7 @@ reversedPFCandidateToVertexAssociationMap reversePFCandToVertexAssociation(const
   for ( PFCandidateToVertexAssociationMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
 	pfCandToVertexAssociation != pfCandToVertexAssociations.end(); ++pfCandToVertexAssociation ) {
     const reco::VertexRef& vertex = pfCandToVertexAssociation->key;
-    typedef std::vector<std::pair<reco::PFCandidateRef, float> > PFCandidateQualityPairVector;
+    typedef std::vector<std::pair<reco::PFCandidateRef, int> > PFCandidateQualityPairVector;
     const PFCandidateQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
     for ( PFCandidateQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
 	  pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
